@@ -4,4 +4,7 @@ version = "0.1.0"
 description = "Bimmer - A user-friendly platform for vehicle advertisements."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "django>=6.0",
+    "djangorestframework>=3.16.1",
+]
