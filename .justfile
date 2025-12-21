@@ -46,6 +46,11 @@ npm-run-dev:
 
 ### General recipes ###
 
+# Run TY for type checking on whole back-end project
+[group("General")]
+typecheck:
+    cd bimmer && uv run ty check
+
 # Run both back-end and front-end with log prefixes and proper Ctrl+C handling
 [group("General")]
 run:
