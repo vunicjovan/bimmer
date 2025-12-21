@@ -19,6 +19,7 @@ log:
 # Create a new Django app
 [group("Django")]
 django-app app_name:
+    @if [ -z "{{app_name}}" ]; then echo "Error: app_name is required"; exit 1; fi
     cd bimmer && uv run python manage.py startapp {{app_name}} apps/{{app_name}}
 
 # Run Django's local server
