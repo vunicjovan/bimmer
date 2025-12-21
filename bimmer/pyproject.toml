@@ -9,3 +9,11 @@ dependencies = [
     "django-cors-headers>=4.9.0",
     "djangorestframework>=3.16.1",
 ]
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.5",
+]
+
+[tool.ty.environment]
+root = ["."]
