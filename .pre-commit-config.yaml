@@ -1,0 +1,22 @@
+default_stages: [commit]
+
+repos:
+  # ---------- Frontend ----------
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.7.4
+    hooks:
+      - id: prettier
+        name: prettier (frontend)
+        files: ^web-app/
+        args: [--check]
+
+  # ---------- Backend ----------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.7
+    hooks:
+      - id: ruff
+        name: ruff (backend)
+        files: ^bimmer/
+      - id: ruff-format
+        name: ruff-format (backend)
+        files: ^bimmer/
