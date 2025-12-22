@@ -1,7 +1,7 @@
 default_stages: [commit]
 
 repos:
-  # ---------- Frontend ----------
+  # ---------- Front-end ----------
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.7.4
     hooks:
@@ -10,7 +10,7 @@ repos:
         files: ^web-app/
         args: [--check]
 
-  # ---------- Backend ----------
+  # ---------- Back-end ----------
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.7
     hooks:
