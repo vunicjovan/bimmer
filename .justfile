@@ -27,6 +27,14 @@ bugfix branch_name:
     @git checkout -b bugfix/{{branch_name}}
 
 
+### UV commands ###
+
+# Sync UV dependencies
+[group("UV")]
+uv-sync:
+    cd bimmer && uv sync
+
+
 ### Django commands ###
 
 # Create a new Django app
@@ -75,6 +83,11 @@ precommit-run:
     uv run pre-commit run --all-files
 
 ### General recipes ###
+
+# Setup both front- and back-end services
+[group("General")]
+setup:
+    just npm-install && just install-prettier && just uv-sync
 
 # Run TY for type checking on whole back-end project
 [group("General")]
