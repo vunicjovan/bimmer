@@ -1,0 +1,56 @@
+/* Theme toggle wrapper */
+.theme-toggle {
+    position: relative;
+    width: 60px; /* wider for icons */
+    height: 28px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+/* Hide native checkbox */
+.theme-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider background */
+.slider {
+    position: absolute;
+    inset: 0;
+    background-color: var(--border);
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+}
+
+/* Slider knob */
+.slider::before {
+    content: "☀️"; /* default: light */
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    top: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    text-align: center;
+    background-color: var(--surface);
+    border-radius: 50%;
+    transition:
+        transform 0.2s ease,
+        content 0.2s ease;
+}
+
+/* Checked (dark mode) */
+.theme-toggle input:checked + .slider {
+    background-color: var(--primary);
+}
+
+.theme-toggle input:checked + .slider::before {
+    transform: translateX(32px);
+    content: "🌙";
+}

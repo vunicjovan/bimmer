@@ -1,0 +1,38 @@
+/* Header */
+.header {
+    height: 60px;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sidebar-toggle {
+    display: none;
+    font-size: 1.3rem;
+    margin-right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text);
+}
+
+/* Mobile: hide sidebar by default */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: inline-block;
+    }
+}
