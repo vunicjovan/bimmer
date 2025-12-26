@@ -9,10 +9,10 @@
     padding: 0 1.5rem;
 }
 
-.logo {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--primary);
+.logo-image {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
 }
 
 .header-actions {
@@ -28,9 +28,10 @@
     background: none;
     border: none;
     color: var(--text);
+    cursor: pointer;
 }
 
-/* Mobile: hide sidebar by default */
+/* Mobile: show sidebar toggle by default */
 @media (max-width: 768px) {
     .sidebar-toggle {
         display: inline-block;

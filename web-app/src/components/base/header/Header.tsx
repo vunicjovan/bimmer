@@ -1,5 +1,6 @@
 import React from "react";
 import ThemeToggle from "../../appearance/theme-toggle/ThemeToggle";
+import bimmerLogo from "../../../assets/images/bimmer-logo.png";
 import "./Header.css";
 
 interface HeaderProps {
@@ -14,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({
     toggleSidebar,
 }) => (
     <header className="header">
-        <h1 className="logo">Bimmer</h1>
+        <img src={bimmerLogo} alt="Bimmer Logo" className="logo-image" />
         <div className="header-actions">
             <button className="sidebar-toggle" onClick={toggleSidebar}>
                 ☰
