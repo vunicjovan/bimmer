@@ -1,0 +1,36 @@
+# Use Python 3.13
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    git \
+    curl \
+    netcat-traditional \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install UV globally
+RUN pip install --no-cache-dir uv
+
+# Copy wait script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Copy Django project
+COPY bimmer/ ./bimmer
+
+# Change to Django project directory and sync dependencies
+WORKDIR /app/bimmer
+RUN uv sync
+
+# Activate venv
+ENV PATH="/app/bimmer/.venv/bin:$PATH"
+
+# Expose Django port
+EXPOSE 8000
+
+# Default command - wait for DB before starting
+CMD ["/app/entrypoint.sh", "db", "5432", "python", "manage.py", "runserver", "0.0.0.0:8000"]
