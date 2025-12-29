@@ -1,3 +1,6 @@
+# Load environment variables
+set dotenv-load
+
 # List available Just recipes
 default:
     @just --list
@@ -43,6 +46,10 @@ django-app app_name:
     @if [ -z "{{app_name}}" ]; then echo "Error: app_name is required"; exit 1; fi
     cd bimmer && uv run python manage.py startapp {{app_name}} apps/{{app_name}}
 
+# Apply the currently unapplied migrations
+migrate:
+    cd bimmer && uv run python manage.py migrate
+
 # Run Django's local server
 [group("Django")]
 runserver:
@@ -81,6 +88,25 @@ precommit-install:
 [group("Pre-Commit")]
 precommit-run:
     uv run pre-commit run --all-files
+
+
+### Docker recipes ###
+
+# Enter PSQL via Docker
+psql:
+    docker compose exec db psql -U $POSTGRES_USER $POSTGRES_DB
+
+# Run just database via Docker
+docker-db:
+    docker compose up db
+
+# Run full stack via Docker
+docker-stack:
+    docker compose up --build
+
+# Stop Docker services and perform cleanup
+docker-stop:
+    docker compose down -v
 
 ### General recipes ###
 

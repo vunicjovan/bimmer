@@ -1,0 +1,59 @@
+services:
+  # PostgreSQL
+  db:
+    image: postgres:15
+    container_name: bimmer-postgres
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  # Django Back-end
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: bimmer-backend
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DEBUG: "True"
+      ALLOWED_HOSTS: backend,localhost,127.0.0.1
+      VITE_API_URL: http://backend:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+    command: /app/entrypoint.sh db 5432 python manage.py runserver 0.0.0.0:8000
+
+  # React Front-end
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: bimmer-frontend
+    env_file:
+      - .env
+    environment:
+      VITE_API_URL: http://backend:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
