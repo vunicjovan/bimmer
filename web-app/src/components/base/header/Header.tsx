@@ -1,6 +1,6 @@
 import React from "react";
 import ThemeToggle from "../../appearance/theme-toggle/ThemeToggle";
-import bimmerLogo from "../../../assets/images/bimmer-logo.png";
+import bimmerLogo from "../../../assets/images/bimmer-logo-transparent.png";
 import "./Header.css";
 
 interface HeaderProps {
