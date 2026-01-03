@@ -3,12 +3,29 @@
     background-color: var(--surface);
     border-right: 1px solid var(--border);
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 .sidebar h2 {
     margin-top: 0;
     margin-bottom: 1rem;
     font-size: 1.1rem;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 2rem;
+}
+
+.sidebar-link {
+    color: var(--primary, #007bff);
+    text-decoration: none;
+}
+
+.sidebar-link:hover {
+    text-decoration: underline;
 }
 
 /* ------------------ */
@@ -29,6 +46,13 @@
 .sidebar.open {
     transform: translateX(0);
     opacity: 1;
+}
+
+/* Services */
+.service {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
 }
 
 /* Filters */
@@ -63,7 +87,7 @@
         position: fixed;
         top: 60px; /* below header */
         left: 0;
-        height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
         width: 260px;
         background-color: var(--surface);
         border-right: 1px solid var(--border);
@@ -73,6 +97,9 @@
             transform 0.3s ease,
             opacity 0.3s ease;
         padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
     }
 
     .sidebar.open {

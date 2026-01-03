@@ -3,11 +3,20 @@ import "./Sidebar.css";
 
 interface SidebarProps {
     isOpen: boolean;
+    onPost?: () => void;
     onSearch?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onSearch }) => (
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onPost, onSearch }) => (
     <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+        <div className="service">
+            <button onClick={onPost}>Post Advertisement</button>
+        </div>
+
+        <div className="service">
+            <button onClick={onSearch}>Search Advertisements</button>
+        </div>
+
         <h2>Search</h2>
 
         <div className="filter">
@@ -32,6 +41,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onSearch }) => (
         </div>
 
         <button onClick={onSearch}>Search</button>
+
+        <div className="sidebar-bottom">
+            <small>
+                <a href="/sign-in" className="sidebar-link">
+                    Sign in
+                </a>
+                {" | "}
+                New to Bimmer?{" "}
+                <a href="/sign-up" className="sidebar-link">
+                    Sign up!
+                </a>
+            </small>
+        </div>
     </aside>
 );
 
