@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "apps.core",
+    "apps.accounts",
 ]
 
 MIDDLEWARE = [
@@ -112,3 +113,6 @@ STATIC_URL = "static/"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+# Custom user model
+AUTH_USER_MODEL = "accounts.User"
