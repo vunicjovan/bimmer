@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -7,9 +9,17 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
+from .choices import AccountStatus, Country, Currency, Language, UserRole
+
+
+def generate_platform_user_number() -> str:
+    """Generate a unique UUID string for platform_user_number."""
+
+    return str(uuid.uuid4())
+
 
 class Address(models.Model):
-    country = models.CharField(max_length=100)
+    country = models.CharField(max_length=2, choices=Country.choices)
     state = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
@@ -23,33 +33,47 @@ class Address(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.street_name} {self.house_number}, {self.city}, {self.country}"
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(
+        self,
+        email: str,
+        password: str | None = None,
+        **extra_fields,
+    ) -> "User":
         """
         Creates and saves a regular user.
         """
 
         if not email:
             raise ValueError("The Email field must be set")
+
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
+        current_timestamp = timezone.now()
+
         user.set_password(password)
-        user.password_last_changed = timezone.now()
-        user.registration_timestamp = timezone.now()
+        user.password_last_changed = current_timestamp
+        user.registration_timestamp = current_timestamp
+
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(
+        self,
+        email: str,
+        password: str | None = None,
+        **extra_fields,
+    ) -> "User":
         """
         Creates and saves a superuser.
         """
 
-        extra_fields.setdefault("role", User.Role.ADMIN)
+        extra_fields.setdefault("role", UserRole.ADMIN)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -60,24 +84,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Basic info
     name = models.CharField(max_length=150)
     surname = models.CharField(max_length=150)
+    date_of_birth = models.DateField(null=True, blank=True)
     display_name = models.CharField(max_length=301, editable=False, db_index=True)
-
+    username = models.CharField(max_length=150, unique=True, db_index=True)
     email = models.EmailField(unique=True, db_index=True)
     email_verified = models.BooleanField(default=False)
-
-    username = models.CharField(max_length=150, unique=True, db_index=True)
-
     password_last_changed = models.DateTimeField(null=True, blank=True)
-
     phone_number = models.CharField(
         max_length=20,
         blank=True,
         null=True,
-        validators=[RegexValidator(r"^\+?[0-9]{7,15}$", "Enter a valid phone number,")],
+        validators=[
+            RegexValidator(
+                r"^\+?[0-9]{7,15}$",
+                "Enter a valid phone number,",
+            ),
+        ],
     )
     phone_number_verified = models.BooleanField(default=False)
-
-    date_of_birth = models.DateField(null=True, blank=True)
 
     # Address relationship
     address = models.OneToOneField(
@@ -88,17 +112,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         related_name="user",
     )
 
-    # Roles & status
-    class Role(models.TextChoices):
-        USER = "USER"
-        ADMIN = "ADMIN"
-
-    class AccountStatus(models.TextChoices):
-        ACTIVE = "ACTIVE"
-        SUSPENDED = "SUSPENDED"
-        DELETED = "DELETED"
-
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
+    role = models.CharField(
+        max_length=10,
+        choices=UserRole.choices,
+        default=UserRole.USER,
+    )
     account_status = models.CharField(
         max_length=10,
         choices=AccountStatus.choices,
@@ -113,18 +131,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
     )
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
-
-    preferred_language = models.CharField(max_length=10, default="en")
-    preferred_currency = models.CharField(max_length=5, default="USD")
-
-    notification_preferences = models.JSONField(default=dict, blank=True)
-
-    platform_user_number = models.BigIntegerField(
+    platform_user_number = models.CharField(
+        max_length=36,
         unique=True,
-        null=True,
-        blank=True,
+        default=generate_platform_user_number,
         db_index=True,
+        editable=False,
     )
+    preferred_language = models.CharField(
+        max_length=10,
+        choices=Language.choices,
+        default=Language.EN,
+    )
+    preferred_currency = models.CharField(
+        max_length=5,
+        choices=Currency.choices,
+        default=Currency.EUR,
+    )
+    notification_preferences = models.JSONField(default=dict, blank=True)
 
     # Timestamps
     registration_timestamp = models.DateTimeField(auto_now_add=True)
@@ -132,22 +156,25 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login_timestamp = models.DateTimeField(null=True, blank=True)
     last_profile_update_timestamp = models.DateTimeField(auto_now=True)
     failed_login_attempts = models.PositiveIntegerField(default=0)
-
     deleted_at = models.DateTimeField(null=True, blank=True, db_index=True)
 
-    # Django internal fields
+    # Django internal fields: is_active = can login, is_staff = admin site access
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["name", "surname", "username"]
+    USERNAME_FIELD = "email"  # Use email to log in
+    REQUIRED_FIELDS = [  # Required when creating superusers
+        "name",
+        "surname",
+        "username",
+    ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.display_name} ({self.email})"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         # Always generate display_name
         self.display_name = f"{self.name} {self.surname}"
         super().save(*args, **kwargs)
