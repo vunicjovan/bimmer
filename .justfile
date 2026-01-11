@@ -1,6 +1,9 @@
 # Load environment variables
 set dotenv-load
 
+# Docker Compose file path
+COMPOSE_FILE := ".docker/docker-compose.yaml"
+
 # List available Just recipes
 default:
     @just --list
@@ -100,19 +103,23 @@ precommit-run:
 
 # Enter PSQL via Docker
 psql:
-    docker compose exec db psql -U $POSTGRES_USER $POSTGRES_DB
+    docker compose -f {{COMPOSE_FILE}} exec db psql -U $POSTGRES_USER $POSTGRES_DB
 
 # Run just database via Docker
 docker-db:
-    docker compose up db
+    docker compose -f {{COMPOSE_FILE}} up db
 
 # Run full stack via Docker
 docker-stack:
-    docker compose up --build
+    docker compose -f {{COMPOSE_FILE}} up --build
+
+# Run full stack with dev tools (Dozzle, IT-Tools)
+docker-stack-dev:
+    docker compose -f {{COMPOSE_FILE}} --profile dev-tools up --build
 
 # Stop Docker services and perform cleanup
 docker-stop:
-    docker compose down -v
+    docker compose -f {{COMPOSE_FILE}} --profile dev-tools down -v
 
 ### General recipes ###
 
