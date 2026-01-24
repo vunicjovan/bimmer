@@ -1,129 +1,19 @@
 # Load environment variables
 set dotenv-load
 
-# Docker Compose file path
-COMPOSE_FILE := ".docker/docker-compose.yaml"
+# Import grouped recipes
+import '.just/git.just'
+import '.just/uv.just'
+import '.just/django.just'
+import '.just/react.just'
+import '.just/precommit.just'
+import '.just/docker.just'
 
-# List available Just recipes
+# List all available Just recipes
 default:
     @just --list
 
-### Git commands ###
-
-# Show Git status
-[group("Git")]
-status:
-    @git status
-
-# Show commit history in a single-line view
-[group("Git")]
-log:
-    @git log --pretty=format:"%h | %ad | %an | %s" --date=iso
-
-# Create a feature branch
-[group("Git")]
-feature branch_name:
-    @if [ -z "{{branch_name}}" ]; then echo "Error: branch_name is required"; exit 1; fi
-    @git checkout -b feature/{{branch_name}}
-
-# Create a bugfix branch
-[group("Git")]
-bugfix branch_name:
-    @if [ -z "{{branch_name}}" ]; then echo "Error: branch_name is required"; exit 1; fi
-    @git checkout -b bugfix/{{branch_name}}
-
-
-### UV commands ###
-
-# Sync UV dependencies
-[group("UV")]
-uv-sync:
-    cd bimmer && uv sync
-
-
-### Django commands ###
-
-# Create a new Django app.
-[group("Django")]
-django-app app_name:
-    @if [ -z "{{app_name}}" ]; then echo "Error: app_name is required"; exit 1; fi
-    cd bimmer && uv run python manage.py startapp {{app_name}} apps/{{app_name}}
-
-# Make migrations for the added Django models.
-[group("Django")]
-makemigrations APP:
-    cd bimmer && uv run python manage.py makemigrations {{APP}}
-
-# Apply the currently unapplied migrations.
-[group("Django")]
-migrate:
-    cd bimmer && uv run python manage.py migrate
-
-# Run Django's local server.
-[group("Django")]
-runserver:
-    cd bimmer && uv run python manage.py runserver
-
-
-### React commands ###
-
-# Install Prettier dependency
-[group("React")]
-install-prettier:
-    cd web-app && npm install --save-dev prettier
-
-# Install dependencies
-[group("React")]
-npm-install:
-    cd web-app && npm install
-
-# Run React's dev server
-[group("React")]
-npm-run-dev:
-    cd web-app && npm run dev
-
-### Pre-Commit Recipes ###
-
-# Check pre-commit version
-[group("Pre-Commit")]
-precommit-version:
-    cd bimmer && uv run pre-commit --version
-
-# Install pre-commit hooks
-[group("Pre-Commit")]
-precommit-install:
-    cd bimmer && uv run pre-commit install
-
-[group("Pre-Commit")]
-precommit-run:
-    uv run pre-commit run --all-files
-
-
-### Docker recipes ###
-
-# Enter PSQL via Docker
-psql:
-    docker compose -f {{COMPOSE_FILE}} exec db psql -U $POSTGRES_USER $POSTGRES_DB
-
-# Run just database via Docker
-docker-db:
-    docker compose -f {{COMPOSE_FILE}} up db
-
-# Run full stack via Docker
-docker-stack:
-    docker compose -f {{COMPOSE_FILE}} up --build
-
-# Run full stack with dev tools (Dozzle, IT-Tools)
-docker-stack-dev:
-    docker compose -f {{COMPOSE_FILE}} --profile dev-tools up --build
-
-# Stop Docker services and perform cleanup
-docker-stop:
-    docker compose -f {{COMPOSE_FILE}} --profile dev-tools down -v
-
-### General recipes ###
-
-# Setup both front- and back-end services
+# Setup for both front- and back-end services
 [group("General")]
 setup:
     just npm-install && just install-prettier && just uv-sync
