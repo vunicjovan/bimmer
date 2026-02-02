@@ -97,7 +97,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         validators=[
             RegexValidator(
                 r"^\+?[0-9]{7,15}$",
-                "Enter a valid phone number,",
+                "Enter a valid phone number",
             ),
         ],
     )
