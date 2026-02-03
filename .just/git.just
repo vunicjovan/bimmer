@@ -10,6 +10,10 @@ status:
 log:
     @git log --pretty=format:"%h | %ad | %an | %s" --date=iso
 
+[group("Git")]
+update:
+    git fetch origin && git pull
+
 # Create a feature branch
 [group("Git")]
 feature branch_name:

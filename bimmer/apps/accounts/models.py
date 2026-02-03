@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -18,6 +19,35 @@ def generate_platform_user_number() -> str:
     return str(uuid.uuid4())
 
 
+class EmailVerificationToken(models.Model):
+    """Model to store verification tokens."""
+
+    user = models.ForeignKey(
+        to="User",
+        on_delete=models.CASCADE,
+        related_name="verification_tokens",
+    )
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    objects = models.Manager()
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.expires_at:
+            # Token expires in 24 hours by default - if not set differently
+            self.expires_at = timezone.now() + timedelta(hours=24)
+
+        super().save(*args, **kwargs)
+
+    def is_valid(self) -> bool:
+        return not self.is_used and timezone.now() < self.expires_at
+
+    def __str__(self) -> str:
+        return f"Token for {self.user.email}"  # ty:ignore[possibly-missing-attribute]
+
+
 class Address(models.Model):
     country = models.CharField(max_length=2, choices=Country.choices)
     state = models.CharField(max_length=100)
@@ -32,6 +62,8 @@ class Address(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
 
     def __str__(self) -> str:
         return f"{self.street_name} {self.house_number}, {self.city}, {self.country}"
@@ -97,7 +129,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         validators=[
             RegexValidator(
                 r"^\+?[0-9]{7,15}$",
-                "Enter a valid phone number,",
+                "Enter a valid phone number",
             ),
         ],
     )
@@ -149,6 +181,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=Currency.EUR,
     )
     notification_preferences = models.JSONField(default=dict, blank=True)
+
+    # Legal compliance
+    terms_accepted = models.BooleanField(default=False)
+    terms_accepted_at = models.DateTimeField(null=True, blank=True)
+    privacy_policy_accepted = models.BooleanField(default=False)
+    privacy_policy_accepted_at = models.DateTimeField(null=True, blank=True)
 
     # Timestamps
     registration_timestamp = models.DateTimeField(auto_now_add=True)
